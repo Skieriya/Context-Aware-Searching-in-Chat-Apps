@@ -206,12 +206,36 @@ export default function ChatPage({ chatId, recipientName }: ChatPageProps) {
             </div>
           </div>
 
-          {!isSearchOpen && (
+          {isSearchOpen ? (
+            <div className="relative flex items-center flex-grow ml-4">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+              <Input
+                type="search"
+                placeholder="Search messages and file context..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 pr-10 w-full text-sm rounded-full h-9 focus-visible:ring-primary focus-visible:ring-opacity-50"
+                autoFocus
+              />
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                    setIsSearchOpen(false);
+                    setSearchTerm('');
+                }}
+                className="absolute right-1 top-1/2 -translate-y-1/2 rounded-full h-8 w-8"
+                aria-label="Close search"
+              >
+                <X size={18} />
+              </Button>
+            </div>
+          ) : (
             <Button
               variant="outline"
               size="sm"
               onClick={() => setIsSearchOpen(true)}
-              className="rounded-full"
+              className="rounded-full ml-4" 
               aria-label="Open Context Aware Search"
             >
               <Search size={16} className="mr-2" />
@@ -219,32 +243,6 @@ export default function ChatPage({ chatId, recipientName }: ChatPageProps) {
             </Button>
           )}
         </div>
-
-        {isSearchOpen && (
-          <div className="mt-3 relative flex items-center">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-            <Input
-              type="search"
-              placeholder="Search messages and file context..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 pr-10 w-full text-sm rounded-full focus-visible:ring-primary focus-visible:ring-opacity-50"
-              autoFocus
-            />
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => {
-                  setIsSearchOpen(false);
-                  setSearchTerm('');
-              }}
-              className="absolute right-1 top-1/2 -translate-y-1/2 rounded-full h-8 w-8"
-              aria-label="Close search"
-            >
-              <X size={18} />
-            </Button>
-          </div>
-        )}
       </CardHeader>
       <CardContent className="flex-grow p-0 overflow-hidden flex flex-col">
         {isLoading ? (

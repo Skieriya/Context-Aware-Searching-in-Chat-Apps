@@ -11,6 +11,7 @@ import { USER_YOU } from '@/config/constants';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Bot, User, Search, X } from 'lucide-react';
 
 interface ChatPageProps {
@@ -215,15 +216,24 @@ export default function ChatPage({ chatId, recipientName }: ChatPageProps) {
           </div>
 
           {!isSearchOpen && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsSearchOpen(true)}
-              className="rounded-full h-10 w-10"
-              aria-label="Open search"
-            >
-              <Search size={20} />
-            </Button>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setIsSearchOpen(true)}
+                    className="rounded-full h-10 w-10"
+                    aria-label="Open Context Aware Search"
+                  >
+                    <Search size={20} />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Context Aware Search</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           )}
         </div>
 

@@ -1,9 +1,10 @@
+
 'use server';
 
 import { USER_YOU } from '@/config/constants';
 import { appendMessageToLog, readChatLog, saveUploadedFile } from '@/lib/chat-storage';
 import type { LogEntry, Message } from '@/types/chat';
-import { redactSensitiveInformation } from '@/ai/flows/redact-sensitive-information';
+// Removed: import { redactSensitiveInformation } from '@/ai/flows/redact-sensitive-information';
 import { revalidatePath } from 'next/cache';
 
 export interface SendMessageResult {
@@ -34,7 +35,7 @@ export async function sendMessageAction(formData: FormData): Promise<SendMessage
 
   try {
     if (textMessage) {
-      const { redactedMessage } = await redactSensitiveInformation({ message: textMessage });
+      // Removed redaction call. Log original text directly.
       logEntry = {
         id: messageId,
         sender,
@@ -42,7 +43,7 @@ export async function sendMessageAction(formData: FormData): Promise<SendMessage
         timestamp,
         type: 'text',
         originalText: textMessage,
-        redactedText: redactedMessage,
+        redactedText: textMessage, // Store original text as redaction is removed
       };
     } else if (file) {
       const { fileName, publicUrl, serverFilePath } = await saveUploadedFile(chatId, file);
@@ -79,7 +80,7 @@ export async function loadMessagesAction(chatId: string): Promise<Message[]> {
       id: entry.id,
       sender: entry.sender,
       receiver: entry.receiver,
-      content: entry.type === 'text' ? entry.redactedText! : entry.fileName!,
+      content: entry.type === 'text' ? entry.redactedText! : entry.fileName!, // Will now display original text
       type: entry.type,
       filePath: entry.type === 'file' ? entry.publicUrl : undefined,
       timestamp: new Date(entry.timestamp),

@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
@@ -9,7 +10,8 @@ import { useToast } from '@/hooks/use-toast';
 import { USER_YOU } from '@/config/constants';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Bot, User, Search } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Bot, User, Search, X } from 'lucide-react';
 
 interface ChatPageProps {
   chatId: string;
@@ -21,6 +23,7 @@ export default function ChatPage({ chatId, recipientName }: ChatPageProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [isSending, setIsSending] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const { toast } = useToast();
 
   const loadMessages = useCallback(async () => {
@@ -53,7 +56,7 @@ export default function ChatPage({ chatId, recipientName }: ChatPageProps) {
       timestamp: new Date(newMessageData.timestamp),
       isLocalSender: newMessageData.sender === USER_YOU,
       isOptimistic,
-      isNew: true, 
+      isNew: true,
     };
 
     setMessages(prevMessages => {
@@ -71,11 +74,11 @@ export default function ChatPage({ chatId, recipientName }: ChatPageProps) {
       setMessages(prev => prev.map(m => m.id === uiMessage.id ? { ...m, isNew: false } : m));
     }, 600); // Duration of fadeIn animation
   };
-  
+
   const simulateFriendReply = useCallback(async (originalMessageId: string) => {
     const replyId = crypto.randomUUID();
     const replyText = `Thanks for your message! I'll get back to you soon. (Reply from ${recipientName})`;
-    
+
     const optimisticLogEntry: LogEntry = {
       id: replyId,
       sender: recipientName, // Reply comes from the current recipient
@@ -118,7 +121,7 @@ export default function ChatPage({ chatId, recipientName }: ChatPageProps) {
     formData.append('sender', USER_YOU);
     formData.append('receiver', recipientName); // Send to the current recipient
     formData.append('messageId', messageId);
-    
+
     const optimisticLogEntryBase = {
       id: messageId,
       sender: USER_YOU,
@@ -149,20 +152,20 @@ export default function ChatPage({ chatId, recipientName }: ChatPageProps) {
         fileContext: "Processing file...", // Optimistic context
       }, true);
     }
-    
+
     const result: SendMessageResult = await sendMessageAction(formData);
     setIsSending(false);
 
     if (result.success && result.newMessage) {
       toast({ title: 'Message Sent!', description: typeof content === 'string' ? 'Your message has been sent and logged.' : 'Your file has been uploaded and logged.' });
       // Update or confirm the optimistic message with server data
-      addMessageToState(result.newMessage); 
+      addMessageToState(result.newMessage);
 
       // Clean up blob URL if it was created and is different from server URL
       if (optimisticFilePath && result.newMessage.type === 'file' && result.newMessage.publicUrl !== optimisticFilePath) {
-         URL.revokeObjectURL(optimisticFilePath); 
+         URL.revokeObjectURL(optimisticFilePath);
       }
-      
+
       // Simulate a reply from the recipient
       await simulateFriendReply(messageId);
 
@@ -199,27 +202,56 @@ export default function ChatPage({ chatId, recipientName }: ChatPageProps) {
 
   return (
     <Card className="w-full h-full flex flex-col overflow-hidden border-0 md:border-l">
-      <CardHeader className="p-4 border-b bg-card space-y-3">
-        <div className="flex items-center space-x-3">
-          <div className="p-2 bg-primary/20 rounded-full">
-            {/* Could use a dynamic icon based on recipient type if available */}
-            <Bot size={24} className="text-primary" />
+      <CardHeader className="p-4 border-b bg-card">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="p-2 bg-primary/20 rounded-full">
+              <Bot size={24} className="text-primary" />
+            </div>
+            <div>
+              <CardTitle className="text-xl font-semibold text-foreground">{recipientName}</CardTitle>
+              <p className="text-xs text-muted-foreground">Chat ID: {chatId}</p>
+            </div>
           </div>
-          <div>
-            <CardTitle className="text-xl font-semibold text-foreground">Chat with {recipientName}</CardTitle>
-            <p className="text-xs text-muted-foreground">Chat logs are saved locally. Chat ID: {chatId}</p>
+
+          {!isSearchOpen && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsSearchOpen(true)}
+              className="rounded-full h-10 w-10"
+              aria-label="Open search"
+            >
+              <Search size={20} />
+            </Button>
+          )}
+        </div>
+
+        {isSearchOpen && (
+          <div className="mt-3 relative flex items-center">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+            <Input
+              type="search"
+              placeholder="Search messages and file context..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 pr-10 w-full text-sm rounded-full focus-visible:ring-primary focus-visible:ring-opacity-50"
+              autoFocus
+            />
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => {
+                  setIsSearchOpen(false);
+                  setSearchTerm('');
+              }}
+              className="absolute right-1 top-1/2 -translate-y-1/2 rounded-full h-8 w-8"
+              aria-label="Close search"
+            >
+              <X size={18} />
+            </Button>
           </div>
-        </div>
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-          <Input
-            type="search"
-            placeholder="Search messages and file context..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 w-full text-sm rounded-lg focus-visible:ring-primary focus-visible:ring-opacity-50"
-          />
-        </div>
+        )}
       </CardHeader>
       <CardContent className="flex-grow p-0 overflow-hidden flex flex-col">
         {isLoading ? (

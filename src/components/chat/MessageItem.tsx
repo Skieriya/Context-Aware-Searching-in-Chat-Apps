@@ -1,3 +1,4 @@
+
 'use client';
 
 import type { Message } from '@/types/chat';
@@ -24,7 +25,7 @@ export default function MessageItem({ message }: MessageItemProps) {
     >
       <Card
         className={cn(
-          'max-w-xs md:max-w-md lg:max-w-lg shadow-md',
+          'max-w-xs md:max-w-md lg:max-w-lg shadow-md rounded-2xl', // Increased border radius
           message.isLocalSender ? 'bg-primary text-primary-foreground rounded-br-none' : 'bg-card text-card-foreground rounded-bl-none'
         )}
       >
@@ -43,7 +44,7 @@ export default function MessageItem({ message }: MessageItemProps) {
                 alt={message.content || 'Uploaded image'}
                 width={200}
                 height={200}
-                className="rounded-md object-cover max-h-[200px] w-auto"
+                className="rounded-xl object-cover max-h-[200px] w-auto" // Increased border radius for image
                 data-ai-hint="chat image"
               />
             ) : (

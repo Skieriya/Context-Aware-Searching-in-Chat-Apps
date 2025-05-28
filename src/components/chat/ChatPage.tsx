@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import type { Message, LogEntry } from '@/types/chat';
 import MessageList from './MessageList';
 import MessageInput from './MessageInput';
@@ -12,6 +12,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Bot, Search, X } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface ChatPageProps {
   chatId: string;
@@ -25,6 +26,16 @@ export default function ChatPage({ chatId, recipientName }: ChatPageProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const { toast } = useToast();
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (isSearchOpen && inputRef.current) {
+      // Timeout to allow the element to become visible and focusable after state change and transition
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 100); // A small delay, adjust if needed (50ms might be too short for some transitions)
+    }
+  }, [isSearchOpen]);
 
   const loadMessages = useCallback(async () => {
     setIsLoading(true);
@@ -196,7 +207,7 @@ export default function ChatPage({ chatId, recipientName }: ChatPageProps) {
   return (
     <Card className="w-full h-full flex flex-col overflow-hidden border-0 md:border-l">
       <CardHeader className="p-4 border-b bg-card">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between space-x-4">
           <div className="flex items-center space-x-3">
             <div className="p-2 bg-primary/20 rounded-full">
               <Bot size={24} className="text-primary" />
@@ -206,16 +217,43 @@ export default function ChatPage({ chatId, recipientName }: ChatPageProps) {
             </div>
           </div>
 
-          {isSearchOpen ? (
-            <div className="relative flex items-center flex-grow ml-4">
+          {/* Search Area - This will be flex-grow to take up remaining space */}
+          <div className="relative flex items-center flex-grow justify-end min-w-[50px]"> {/* min-w to prevent collapse */}
+            {/* "Context Aware Search" Button */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsSearchOpen(true)}
+              className={cn(
+                "rounded-full flex items-center transition-all duration-300 ease-in-out transform",
+                isSearchOpen 
+                  ? "opacity-0 scale-95 w-0 p-0 border-0 pointer-events-none" 
+                  : "opacity-100 scale-100"
+              )}
+              aria-label="Open Context Aware Search"
+              disabled={isSearchOpen}
+            >
+              <Search size={16} className="mr-2" />
+              Context Aware Search
+            </Button>
+
+            {/* Search Input Full Width Container */}
+            <div className={cn(
+                "relative flex items-center w-full transition-all duration-300 ease-in-out transform",
+                isSearchOpen 
+                  ? "opacity-100 scale-100" 
+                  : "opacity-0 scale-95 w-0 pointer-events-none absolute"
+              )}
+            >
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
               <Input
+                ref={inputRef}
                 type="search"
                 placeholder="Search messages and file context..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10 pr-10 w-full text-sm rounded-full h-9 focus-visible:ring-primary focus-visible:ring-opacity-50"
-                autoFocus
+                disabled={!isSearchOpen}
               />
               <Button
                 variant="ghost"
@@ -226,22 +264,12 @@ export default function ChatPage({ chatId, recipientName }: ChatPageProps) {
                 }}
                 className="absolute right-1 top-1/2 -translate-y-1/2 rounded-full h-8 w-8"
                 aria-label="Close search"
+                disabled={!isSearchOpen}
               >
                 <X size={18} />
               </Button>
             </div>
-          ) : (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setIsSearchOpen(true)}
-              className="rounded-full ml-4" 
-              aria-label="Open Context Aware Search"
-            >
-              <Search size={16} className="mr-2" />
-              Context Aware Search
-            </Button>
-          )}
+          </div>
         </div>
       </CardHeader>
       <CardContent className="flex-grow p-0 overflow-hidden flex flex-col">
@@ -255,3 +283,4 @@ export default function ChatPage({ chatId, recipientName }: ChatPageProps) {
     </Card>
   );
 }
+

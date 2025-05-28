@@ -224,7 +224,7 @@ export default function ChatPage({ chatId, recipientName }: ChatPageProps) {
               className={cn(
                 "rounded-full flex items-center transition-all duration-300 ease-in-out transform h-8",
                 isSearchOpen // Button hidden classes
-                  ? "opacity-0 scale-95 w-0 p-0 border-0 pointer-events-none absolute" 
+                  ? "opacity-0 scale-95 w-0 p-0 border-0 pointer-events-none absolute overflow-hidden" 
                   : "opacity-100 scale-100" // Button visible classes
               )}
               aria-label="Open Context Aware Search"
@@ -279,3 +279,4 @@ export default function ChatPage({ chatId, recipientName }: ChatPageProps) {
     </Card>
   );
 }
+

@@ -87,5 +87,24 @@
     "timestamp": "2025-05-28T07:45:40.457Z",
     "type": "text",
     "originalText": "Thanks for your message! I'll get back to you soon."
+  },
+  {
+    "id": "8ca664b9-4a5d-47c1-9487-739815060518",
+    "sender": "You",
+    "receiver": "Friend",
+    "timestamp": "2025-05-28T17:09:49.218Z",
+    "type": "file",
+    "fileName": "2505.04165v4.pdf",
+    "publicUrl": "/uploads/local_chat_session/2505.04165v4.pdf",
+    "serverFilePath": "/home/user/studio/public/uploads/local_chat_session/2505.04165v4.pdf",
+    "fileContext": "This paper introduces a Temporal Shift module (TS-SNN) for Spiking Neural Networks to integrate past, present, and future spike features with minimal computational cost. TS-SNN achieves state-of-the-art performance on CIFAR-10, CIFAR-100, and ImageNet with fewer timesteps while maintaining low energy consumption."
+  },
+  {
+    "id": "e9ecd6d9-47de-4737-93c3-89ff4d221b3e",
+    "sender": "Friend",
+    "receiver": "You",
+    "timestamp": "2025-05-28T17:09:56.013Z",
+    "type": "text",
+    "originalText": "Thanks for your message! I'll get back to you soon."
   }
 ]

@@ -32,13 +32,13 @@ export default function ChatPage({ chatId, recipientName }: ChatPageProps) {
     if (isSearchOpen && inputRef.current) {
       setTimeout(() => {
         inputRef.current?.focus();
-      }, 100); 
+      }, 100);
     }
   }, [isSearchOpen]);
 
   const loadMessages = useCallback(async () => {
     setIsLoading(true);
-    setMessages([]); 
+    setMessages([]);
     try {
       const loadedMessages = await loadMessagesAction(chatId);
       setMessages(loadedMessages.map(m => ({ ...m, isNew: false })));
@@ -52,7 +52,7 @@ export default function ChatPage({ chatId, recipientName }: ChatPageProps) {
 
   useEffect(() => {
     loadMessages();
-  }, [loadMessages]); 
+  }, [loadMessages]);
 
   const addMessageToState = useCallback((newMessageData: LogEntry, isOptimistic: boolean = false) => {
     const uiMessage: Message = {
@@ -147,7 +147,7 @@ export default function ChatPage({ chatId, recipientName }: ChatPageProps) {
         originalText: content,
         type: 'text',
       }, true);
-    } else { 
+    } else {
       formData.append('file', content);
       if (content.type.startsWith('image/')) {
         optimisticFilePath = URL.createObjectURL(content);
@@ -155,7 +155,7 @@ export default function ChatPage({ chatId, recipientName }: ChatPageProps) {
       addMessageToState({
         ...optimisticLogEntryBase,
         fileName: content.name,
-        publicUrl: optimisticFilePath, 
+        publicUrl: optimisticFilePath,
         type: 'file',
         fileContext: "Processing file...",
       }, true);
@@ -222,9 +222,9 @@ export default function ChatPage({ chatId, recipientName }: ChatPageProps) {
               size="sm"
               onClick={() => setIsSearchOpen(true)}
               className={cn(
-                "rounded-full flex items-center transition-all duration-300 ease-in-out transform h-8", // Made button h-8
-                isSearchOpen 
-                  ? "opacity-0 scale-95 w-0 p-0 border-0 pointer-events-none" 
+                "rounded-full flex items-center transition-all duration-300 ease-in-out transform h-8",
+                isSearchOpen
+                  ? "opacity-0 scale-95 w-0 p-0 border-0 pointer-events-none"
                   : "opacity-100 scale-100"
               )}
               aria-label="Open Context Aware Search"
@@ -235,9 +235,9 @@ export default function ChatPage({ chatId, recipientName }: ChatPageProps) {
             </Button>
 
             <div className={cn(
-                "relative flex items-center w-full transition-all duration-300 ease-in-out transform",
-                isSearchOpen 
-                  ? "opacity-100 scale-100" 
+                "relative flex items-center w-72 transition-all duration-300 ease-in-out transform", // Changed w-full to w-72
+                isSearchOpen
+                  ? "opacity-100 scale-100"
                   : "opacity-0 scale-95 w-0 pointer-events-none absolute"
               )}
             >
@@ -245,10 +245,10 @@ export default function ChatPage({ chatId, recipientName }: ChatPageProps) {
               <Input
                 ref={inputRef}
                 type="search"
-                placeholder="Search messages and file context..."
+                placeholder="Context Aware Search" // Changed placeholder
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 pr-10 w-full text-sm rounded-full h-8 focus-visible:ring-primary focus-visible:ring-opacity-50" // Made input h-8
+                className="pl-10 pr-10 w-full text-sm rounded-full h-8 focus-visible:ring-primary focus-visible:ring-opacity-50"
                 disabled={!isSearchOpen}
               />
               <Button
@@ -258,11 +258,11 @@ export default function ChatPage({ chatId, recipientName }: ChatPageProps) {
                     setIsSearchOpen(false);
                     setSearchTerm('');
                 }}
-                className="absolute right-1 top-1/2 -translate-y-1/2 rounded-full h-7 w-7" // Made X button h-7 w-7
+                className="absolute right-1 top-1/2 -translate-y-1/2 rounded-full h-7 w-7"
                 aria-label="Close search"
                 disabled={!isSearchOpen}
               >
-                <X size={16} /> {/* Adjusted X icon size */}
+                <X size={16} />
               </Button>
             </div>
           </div>

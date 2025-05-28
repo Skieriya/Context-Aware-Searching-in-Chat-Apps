@@ -11,8 +11,7 @@ import { USER_YOU } from '@/config/constants';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'; // TooltipProvider removed as it's global
-import { Bot, Search, X } from 'lucide-react'; // User icon removed as it's not used here
+import { Bot, Search, X } from 'lucide-react';
 
 interface ChatPageProps {
   chatId: string;
@@ -29,7 +28,7 @@ export default function ChatPage({ chatId, recipientName }: ChatPageProps) {
 
   const loadMessages = useCallback(async () => {
     setIsLoading(true);
-    setMessages([]); // Clear previous chat messages
+    setMessages([]); 
     try {
       const loadedMessages = await loadMessagesAction(chatId);
       setMessages(loadedMessages.map(m => ({ ...m, isNew: false })));
@@ -43,7 +42,7 @@ export default function ChatPage({ chatId, recipientName }: ChatPageProps) {
 
   useEffect(() => {
     loadMessages();
-  }, [loadMessages]); // Reload messages when chatId changes (via key prop on ChatPage)
+  }, [loadMessages]); 
 
   const addMessageToState = useCallback((newMessageData: LogEntry, isOptimistic: boolean = false) => {
     const uiMessage: Message = {
@@ -78,7 +77,7 @@ export default function ChatPage({ chatId, recipientName }: ChatPageProps) {
 
   const simulateFriendReply = useCallback(async (originalMessageId: string) => {
     const replyId = crypto.randomUUID();
-    const replyText = `Thanks for your message! I'll get back to you soon.`; // Simpler reply
+    const replyText = `Thanks for your message! I'll get back to you soon.`;
 
     const optimisticLogEntry: LogEntry = {
       id: replyId,
@@ -204,27 +203,20 @@ export default function ChatPage({ chatId, recipientName }: ChatPageProps) {
             </div>
             <div>
               <CardTitle className="text-xl font-semibold text-foreground">{recipientName}</CardTitle>
-              {/* <p className="text-xs text-muted-foreground">Chat ID: {chatId}</p> */} {/* Chat ID can be hidden for cleaner UI */}
             </div>
           </div>
 
           {!isSearchOpen && (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setIsSearchOpen(true)}
-                  className="rounded-full h-10 w-10"
-                  aria-label="Open Context Aware Search"
-                >
-                  <Search size={20} />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Context Aware Search</p>
-              </TooltipContent>
-            </Tooltip>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsSearchOpen(true)}
+              className="rounded-full"
+              aria-label="Open Context Aware Search"
+            >
+              <Search size={16} className="mr-2" />
+              Context Aware Search
+            </Button>
           )}
         </div>
 

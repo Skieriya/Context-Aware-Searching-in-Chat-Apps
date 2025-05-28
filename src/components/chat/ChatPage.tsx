@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -38,7 +39,7 @@ export default function ChatPage() {
       id: newMessageData.id,
       sender: newMessageData.sender,
       receiver: newMessageData.receiver,
-      content: newMessageData.type === 'text' ? newMessageData.redactedText! : newMessageData.fileName!,
+      content: newMessageData.type === 'text' ? newMessageData.originalText! : newMessageData.fileName!,
       type: newMessageData.type,
       filePath: newMessageData.type === 'file' ? newMessageData.publicUrl : undefined,
       timestamp: new Date(newMessageData.timestamp),
@@ -68,26 +69,15 @@ export default function ChatPage() {
     const replyId = crypto.randomUUID();
     const replyText = "Thanks for your message! I'll get back to you soon.";
     
-    const optimisticReply: Message = {
+    const optimisticLogEntry: LogEntry = {
       id: replyId,
       sender: USER_FRIEND,
       receiver: USER_YOU,
-      content: replyText, // Show original reply text optimistically, redaction will happen on server
-      type: 'text',
-      timestamp: new Date(),
-      isLocalSender: false,
-      isOptimistic: true,
-      isNew: true,
-    };
-    addMessageToState({
-      id: replyId,
-      sender: USER_FRIEND,
-      receiver: USER_YOU,
-      redactedText: replyText, // Placeholder, will be updated by server
       originalText: replyText,
       type: 'text',
       timestamp: new Date().toISOString(),
-    }, true);
+    };
+    addMessageToState(optimisticLogEntry, true);
 
     const formData = new FormData();
     formData.append('chatId', CHAT_ID);
@@ -125,35 +115,37 @@ export default function ChatPage() {
     let optimisticContent: string;
     let optimisticType: 'text' | 'file' = 'text';
     let optimisticFilePath: string | undefined = undefined;
+    
+    const optimisticLogEntryBase = {
+      id: messageId,
+      sender: USER_YOU,
+      receiver: USER_FRIEND,
+      timestamp: new Date().toISOString(),
+    };
 
     if (typeof content === 'string') {
       formData.append('textMessage', content);
-      optimisticContent = content; // Show original text optimistically
+      optimisticContent = content;
+      addMessageToState({
+        ...optimisticLogEntryBase,
+        originalText: optimisticContent,
+        type: 'text',
+      }, true);
     } else {
       formData.append('file', content);
       optimisticContent = content.name;
       optimisticType = 'file';
-      // Create a temporary blob URL for optimistic image display
       if (content.type.startsWith('image/')) {
         optimisticFilePath = URL.createObjectURL(content);
       }
+      addMessageToState({
+        ...optimisticLogEntryBase,
+        fileName: optimisticContent,
+        publicUrl: optimisticFilePath, // Use blob URL for optimistic image display
+        type: 'file',
+      }, true);
     }
     
-    // Optimistic update
-    addMessageToState({
-      id: messageId,
-      sender: USER_YOU,
-      receiver: USER_FRIEND,
-      // Use original content for optimistic display
-      redactedText: optimisticType === 'text' ? optimisticContent : undefined,
-      originalText: optimisticType === 'text' ? optimisticContent : undefined,
-      fileName: optimisticType === 'file' ? optimisticContent : undefined,
-      publicUrl: optimisticType === 'file' ? optimisticFilePath : undefined, 
-      type: optimisticType,
-      timestamp: new Date().toISOString(),
-    }, true);
-
-
     const result: SendMessageResult = await sendMessageAction(formData);
     setIsSending(false);
 
@@ -161,12 +153,10 @@ export default function ChatPage() {
       toast({ title: 'Message Sent!', description: typeof content === 'string' ? 'Your message has been sent and logged.' : 'Your file has been uploaded and logged.' });
       addMessageToState(result.newMessage); // Update with server-confirmed message
 
-      // Revoke blob URL after server confirmation if it was used
-      if (optimisticFilePath && optimisticType === 'file') {
-         URL.revokeObjectURL(optimisticFilePath);
+      if (optimisticFilePath && optimisticType === 'file' && result.newMessage.publicUrl !== optimisticFilePath) {
+         URL.revokeObjectURL(optimisticFilePath); // Revoke only if server returned a different URL (i.e., not the blob)
       }
       
-      // Simulate friend's reply
       await simulateFriendReply(messageId);
 
     } else {
@@ -175,9 +165,7 @@ export default function ChatPage() {
         description: result.message || 'Could not send your message.',
         variant: 'destructive',
       });
-      // Remove optimistic message if server failed
       setMessages(prev => prev.filter(m => m.id !== messageId));
-       // Revoke blob URL if server failed
       if (optimisticFilePath && optimisticType === 'file') {
          URL.revokeObjectURL(optimisticFilePath);
       }
@@ -193,7 +181,7 @@ export default function ChatPage() {
           </div>
           <div>
             <CardTitle className="text-xl font-semibold text-foreground">LocalChat with {USER_FRIEND}</CardTitle>
-            <p className="text-xs text-muted-foreground">Chat logs are saved locally with AI-powered redaction.</p>
+            <p className="text-xs text-muted-foreground">Chat logs are saved locally. File uploads include AI summaries.</p>
           </div>
         </div>
       </CardHeader>
@@ -208,3 +196,4 @@ export default function ChatPage() {
     </Card>
   );
 }
+

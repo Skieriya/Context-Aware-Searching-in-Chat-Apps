@@ -6,8 +6,7 @@
     "receiver": "Friend",
     "timestamp": "2025-05-28T07:03:26.620Z",
     "type": "text",
-    "originalText": "HI",
-    "redactedText": "HI"
+    "originalText": "HI"
   },
   {
     "id": "cba939e6-3a16-457e-8f5c-180aaf2b4ece",
@@ -15,8 +14,7 @@
     "receiver": "You",
     "timestamp": "2025-05-28T07:03:29.578Z",
     "type": "text",
-    "originalText": "Thanks for your message! I'll get back to you soon.",
-    "redactedText": "Thanks for your message! I'll get back to you soon."
+    "originalText": "Thanks for your message! I'll get back to you soon."
   },
   {
     "id": "77b82593-8edf-4b83-a9d5-c303021d36c7",
@@ -35,8 +33,7 @@
     "receiver": "You",
     "timestamp": "2025-05-28T07:03:44.079Z",
     "type": "text",
-    "originalText": "Thanks for your message! I'll get back to you soon.",
-    "redactedText": "Thanks for your message! I'll get back to you soon."
+    "originalText": "Thanks for your message! I'll get back to you soon."
   },
   {
     "id": "96cdc7e1-d976-40cf-a113-a3f512c47f8a",
@@ -44,8 +41,7 @@
     "receiver": "Friend",
     "timestamp": "2025-05-28T07:03:52.687Z",
     "type": "text",
-    "originalText": "good",
-    "redactedText": "good"
+    "originalText": "good"
   },
   {
     "id": "62fa64cd-c845-40be-93ef-e5dc80da2f6e",
@@ -53,7 +49,6 @@
     "receiver": "You",
     "timestamp": "2025-05-28T07:03:55.043Z",
     "type": "text",
-    "originalText": "Thanks for your message! I'll get back to you soon.",
-    "redactedText": "Thanks for your message! I'll get back to you soon."
+    "originalText": "Thanks for your message! I'll get back to you soon."
   }
 ]

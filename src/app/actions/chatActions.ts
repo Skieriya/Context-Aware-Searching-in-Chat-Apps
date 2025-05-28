@@ -42,7 +42,6 @@ export async function sendMessageAction(formData: FormData): Promise<SendMessage
         timestamp,
         type: 'text',
         originalText: textMessage,
-        redactedText: textMessage, 
       };
     } else if (file) {
       const { fileName, publicUrl, serverFilePath } = await saveUploadedFile(chatId, file);
@@ -96,7 +95,7 @@ export async function loadMessagesAction(chatId: string): Promise<Message[]> {
       id: entry.id,
       sender: entry.sender,
       receiver: entry.receiver,
-      content: entry.type === 'text' ? entry.redactedText! : entry.fileName!, 
+      content: entry.type === 'text' ? entry.originalText! : entry.fileName!, 
       type: entry.type,
       filePath: entry.type === 'file' ? entry.publicUrl : undefined,
       timestamp: new Date(entry.timestamp),
@@ -108,3 +107,4 @@ export async function loadMessagesAction(chatId: string): Promise<Message[]> {
     return [];
   }
 }
+

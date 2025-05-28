@@ -4,7 +4,7 @@ export interface Message {
   id: string;
   sender: string; // e.g., USER_YOU, USER_FRIEND
   receiver: string;
-  content: string; // Redacted text or file name
+  content: string; // Original text or file name
   type: 'text' | 'file';
   filePath?: string; // public URL for file type, e.g., /uploads/chat_id/filename.txt
   timestamp: Date;
@@ -22,10 +22,10 @@ export interface LogEntry {
   type: 'text' | 'file';
   // For text messages
   originalText?: string; 
-  redactedText?: string;
   // For file messages
   fileName?: string; 
   publicUrl?: string; // Publicly accessible URL, e.g., /uploads/chat_id/filename.txt
   serverFilePath?: string; // Path on server fs, e.g., public/uploads/...
   fileContext?: string; // AI-generated summary for files
 }
+

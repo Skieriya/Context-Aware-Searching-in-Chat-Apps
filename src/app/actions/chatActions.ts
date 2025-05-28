@@ -1,4 +1,3 @@
-
 'use server';
 
 import { USER_YOU } from '@/config/constants';
@@ -23,7 +22,7 @@ export async function sendMessageAction(formData: FormData): Promise<SendMessage
   const file = formData.get('file') as File | null;
 
   if (!chatId || !sender || !receiver || !messageId) {
-    return { success: false, message: 'Missing required fields.' };
+    return { success: false, message: 'Missing required fields (chatId, sender, receiver, messageId).' };
   }
 
   if (!textMessage && !file) {
@@ -44,20 +43,21 @@ export async function sendMessageAction(formData: FormData): Promise<SendMessage
         originalText: textMessage,
       };
     } else if (file) {
+      // Ensure chat directories exist for the specific chatId before saving file
+      // This is important if it's a new chat session.
+      // saveUploadedFile itself calls ensureChatDirectoriesExist, but good to be aware.
       const { fileName, publicUrl, serverFilePath } = await saveUploadedFile(chatId, file);
       
-      // Convert file to data URI for AI processing
       const bytes = await file.arrayBuffer();
       const buffer = Buffer.from(bytes);
       const fileDataUri = `data:${file.type};base64,${buffer.toString('base64')}`;
 
-      let fileContext = "File content summary not available."; // Default context
+      let fileContext = "File content summary not available.";
       try {
         const summaryOutput = await summarizeFileContent({ fileDataUri, fileName: file.name });
         fileContext = summaryOutput.summary;
       } catch (aiError) {
-        console.warn(`AI summarization failed for ${fileName}:`, aiError);
-        // You could choose to log a specific error message in fileContext or proceed without it
+        console.warn(`AI summarization failed for ${fileName} in chat ${chatId}:`, aiError);
       }
 
       logEntry = {
@@ -69,16 +69,20 @@ export async function sendMessageAction(formData: FormData): Promise<SendMessage
         fileName,
         publicUrl,
         serverFilePath,
-        fileContext, // Add the AI-generated context here
+        fileContext,
       };
     } else {
-      // Should not happen based on earlier check, but as a safeguard
       return { success: false, message: 'Invalid message type.' };
     }
 
     await appendMessageToLog(chatId, logEntry);
-    revalidatePath('/'); // Revalidate the page to reflect new messages when loading
-    revalidatePath('/view-log'); // Revalidate log view page as well
+    // Revalidate paths related to this specific chat if dynamic paths were used for pages
+    // For now, revalidating general paths. If using [chatId] in page routes, adjust accordingly.
+    revalidatePath('/'); // Revalidates the main page where chat list might be if not fully client-side
+    revalidatePath(`/view-log`); // Assuming view-log might also become dynamic or needs general reval
+    // If ChatPage was a server component at a dynamic route like /chat/[chatId], you'd do:
+    // revalidatePath(`/chat/${chatId}`);
+    
     return { success: true, newMessage: logEntry };
 
   } catch (error) {
@@ -104,8 +108,7 @@ export async function loadMessagesAction(chatId: string): Promise<Message[]> {
       isNew: false, 
     })).sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
   } catch (error) {
-    console.error('Error loading messages:', error);
-    return [];
+    console.error(`Error loading messages for chat ${chatId}:`, error);
+    return []; // Return empty array on error
   }
 }
-

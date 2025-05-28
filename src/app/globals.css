@@ -56,7 +56,7 @@ body {
     --chart-5: 340 75% 55%;
   }
 
-  .dark {
+  .dark { /* This class might be redundant if :root is always dark, but kept for potential explicit use */
     --background: 0 0% 8%;
     --foreground: 0 0% 85%;
     
@@ -101,6 +101,53 @@ body {
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
+  }
+
+  .theme-yellow {
+    --background: 45 90% 90%; /* Light Yellow */
+    --foreground: 45 30% 20%; /* Dark Brown/Gray for text */
+
+    --card: 45 85% 85%; /* Slightly lighter yellow for cards */
+    --card-foreground: 45 30% 20%;
+
+    --popover: 45 85% 85%;
+    --popover-foreground: 45 30% 20%;
+
+    --primary: 35 80% 55%; /* Orange */
+    --primary-foreground: 35 90% 98%; /* Very light orange/white */
+
+    --secondary: 45 50% 70%; /* Muted yellow */
+    --secondary-foreground: 45 30% 20%;
+
+    --muted: 45 60% 80%; /* Lighter muted yellow */
+    --muted-foreground: 45 30% 40%; /* Medium brown/gray */
+
+    --accent: 25 85% 60%; /* Stronger Orange/Amber for accents */
+    --accent-foreground: 25 20% 95%;
+
+    --destructive: 0 70% 50%; /* Red - can remain similar for warnings */
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 45 70% 75%; /* Yellowish border */
+    --input: 45 90% 95%; /* Very light yellow input background */
+    --ring: 35 80% 55%; /* Orange ring */
+
+    /* Sidebar specific colors for yellow theme */
+    --sidebar-background: 45 88% 88%;
+    --sidebar-foreground: 45 30% 25%;
+    --sidebar-primary: 35 80% 55%;
+    --sidebar-primary-foreground: 35 90% 98%;
+    --sidebar-accent: 45 75% 78%;
+    --sidebar-accent-foreground: 45 25% 15%;
+    --sidebar-border: 45 70% 70%;
+    --sidebar-ring: 35 80% 55%;
+
+    /* Chart colors - adjust for yellow theme */
+    --chart-1: 35 70% 50%;
+    --chart-2: 50 60% 45%;
+    --chart-3: 20 80% 55%;
+    --chart-4: 40 65% 60%;
+    --chart-5: 15 75% 55%;
   }
 }
 

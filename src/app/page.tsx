@@ -23,8 +23,9 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { MessagesSquare, PlusCircle } from "lucide-react";
-import { CHAT_ID, USER_FRIEND } from '@/config/constants'; // Import constants
+import { MessagesSquare, PlusCircle, Sun, Moon } from "lucide-react"; // Added Sun, Moon
+import { CHAT_ID, USER_FRIEND } from '@/config/constants';
+import { useTheme } from '@/context/ThemeContext'; // New import
 
 interface ChatSession {
   id: string;
@@ -39,6 +40,7 @@ export default function Home() {
   const [activeChatId, setActiveChatId] = useState<string>(CHAT_ID);
   const [isAddChatDialogOpen, setIsAddChatDialogOpen] = useState(false);
   const [newChatName, setNewChatName] = useState('');
+  const { theme, toggleTheme } = useTheme(); // Use the theme context
 
   // Effect to load chats from localStorage on mount (optional persistence)
   useEffect(() => {
@@ -95,6 +97,15 @@ export default function Home() {
             Chats
           </h2>
           <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleTheme}
+              className="h-7 w-7"
+              aria-label="Toggle theme"
+            >
+              {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+            </Button>
             <Button
               variant="ghost"
               size="icon"

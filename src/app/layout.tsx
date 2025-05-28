@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from 'next/font/google'; // Corrected import for Ge
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster"; // Added Toaster
 import { SidebarProvider } from "@/components/ui/sidebar";
+import { ThemeProvider } from '@/context/ThemeContext'; // New import
 
 const geistSans = Geist({ // Corrected instantiation
   variable: '--font-geist-sans',
@@ -27,10 +28,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}>
-        <SidebarProvider defaultOpen={true}>
-          {children}
-        </SidebarProvider>
-        <Toaster />
+        <ThemeProvider> {/* Wrap with ThemeProvider */}
+          <SidebarProvider defaultOpen={true}>
+            {children}
+          </SidebarProvider>
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );

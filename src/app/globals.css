@@ -7,6 +7,9 @@ body {
 }
 
 @layer base {
+  /* :root defines the default theme (aesthetic black/dark) 
+     This also serves as a fallback if JS is disabled or before hydration.
+  */
   :root {
     --background: 0 0% 8%; /* Very dark gray / near black */
     --foreground: 0 0% 85%; /* Light gray for text */
@@ -56,7 +59,11 @@ body {
     --chart-5: 340 75% 55%;
   }
 
-  .dark { /* This class might be redundant if :root is always dark, but kept for potential explicit use */
+  /* .dark class explicitly defines the dark theme variables.
+     This will be applied to <html> by ThemeProvider for the dark theme.
+     It matches :root for consistency and works with Tailwind's darkMode: 'class'.
+  */
+  .dark {
     --background: 0 0% 8%;
     --foreground: 0 0% 85%;
     
@@ -103,6 +110,9 @@ body {
     --chart-5: 340 75% 55%;
   }
 
+  /* .theme-yellow class defines the variables for the yellow theme.
+     This will be applied to <html> by ThemeProvider.
+  */
   .theme-yellow {
     --background: 45 90% 90%; /* Light Yellow */
     --foreground: 45 30% 20%; /* Dark Brown/Gray for text */

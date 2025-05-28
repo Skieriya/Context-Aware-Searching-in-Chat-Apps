@@ -23,9 +23,9 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { MessagesSquare, PlusCircle, Sun, Moon } from "lucide-react"; // Added Sun, Moon
+import { MessagesSquare, PlusCircle, Sun, Moon } from "lucide-react";
 import { CHAT_ID, USER_FRIEND } from '@/config/constants';
-import { useTheme } from '@/context/ThemeContext'; // New import
+import { useTheme } from '@/context/ThemeContext';
 
 interface ChatSession {
   id: string;
@@ -40,9 +40,8 @@ export default function Home() {
   const [activeChatId, setActiveChatId] = useState<string>(CHAT_ID);
   const [isAddChatDialogOpen, setIsAddChatDialogOpen] = useState(false);
   const [newChatName, setNewChatName] = useState('');
-  const { theme, toggleTheme } = useTheme(); // Use the theme context
+  const { theme, toggleTheme } = useTheme();
 
-  // Effect to load chats from localStorage on mount (optional persistence)
   useEffect(() => {
     const storedChats = localStorage.getItem('chatSessions');
     if (storedChats) {
@@ -50,31 +49,35 @@ export default function Home() {
         const parsedChats = JSON.parse(storedChats);
         if (Array.isArray(parsedChats) && parsedChats.length > 0) {
           setChats(parsedChats);
-          // Ensure activeChatId is valid, default to first chat if not
-          const currentActive = parsedChats.find(c => c.id === activeChatId);
-          if (!currentActive && parsedChats.length > 0) {
+          const currentActiveChatId = localStorage.getItem('activeChatId');
+          const activeChatExists = parsedChats.some(c => c.id === currentActiveChatId);
+          
+          if (currentActiveChatId && activeChatExists) {
+            setActiveChatId(currentActiveChatId);
+          } else {
             setActiveChatId(parsedChats[0].id);
-          } else if (!currentActive && parsedChats.length === 0) {
-             // This case should ideally not happen if initialized with a default
-            setActiveChatId(CHAT_ID); // Fallback to default if list becomes empty
-            setChats([{ id: CHAT_ID, name: USER_FRIEND, isDefault: true }]);
           }
         }
       } catch (e) {
         console.error("Failed to parse chats from localStorage", e);
-        // Initialize with default if localStorage is corrupt
         setChats([{ id: CHAT_ID, name: USER_FRIEND, isDefault: true }]);
         setActiveChatId(CHAT_ID);
       }
     }
-  }, []); // Empty dependency array: runs only on mount
+  }, []);
 
-  // Effect to save chats to localStorage when they change
   useEffect(() => {
-    if (chats.length > 0 || localStorage.getItem('chatSessions')) { // Only save if chats exist or previously existed
+    if (chats.length > 0) {
         localStorage.setItem('chatSessions', JSON.stringify(chats));
+        // Also save activeChatId if it's valid and part of the current chats
+        if (chats.some(c => c.id === activeChatId)) {
+            localStorage.setItem('activeChatId', activeChatId);
+        }
+    } else if (localStorage.getItem('chatSessions')) { // If chats become empty, clear from storage
+        localStorage.removeItem('chatSessions');
+        localStorage.removeItem('activeChatId');
     }
-  }, [chats]);
+  }, [chats, activeChatId]);
 
 
   const handleAddNewChat = () => {
@@ -85,6 +88,10 @@ export default function Home() {
     setActiveChatId(newChatId);
     setNewChatName('');
     setIsAddChatDialogOpen(false);
+  };
+
+  const handleSelectChat = (chatId: string) => {
+    setActiveChatId(chatId);
   };
 
   const activeChat = chats.find(c => c.id === activeChatId);
@@ -125,7 +132,7 @@ export default function Home() {
               <SidebarMenuItem key={chat.id}>
                 <SidebarMenuButton 
                   isActive={chat.id === activeChatId}
-                  onClick={() => setActiveChatId(chat.id)}
+                  onClick={() => handleSelectChat(chat.id)}
                   tooltip={{ children: chat.name, side: "right" }}
                 >
                   <MessagesSquare size={18} />
@@ -133,7 +140,6 @@ export default function Home() {
                 </SidebarMenuButton>
               </SidebarMenuItem>
             ))}
-            {/* Collapsed "Add Chat" button */}
             <SidebarMenuItem className="hidden group-data-[state=collapsed]:block mt-auto">
                  <SidebarMenuButton
                     onClick={() => setIsAddChatDialogOpen(true)}
@@ -149,7 +155,7 @@ export default function Home() {
       <SidebarInset>
         {activeChat ? (
           <ChatPage
-            key={activeChat.id} // Important for re-rendering ChatPage on chat switch
+            key={activeChat.id}
             chatId={activeChat.id}
             recipientName={activeChat.name}
           />

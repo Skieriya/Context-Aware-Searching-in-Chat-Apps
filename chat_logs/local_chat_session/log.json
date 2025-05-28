@@ -1,3 +1,4 @@
+
 [
   {
     "id": "85190426-c9dd-43b5-9d15-2200d4f5b51b",
@@ -25,7 +26,8 @@
     "type": "file",
     "fileName": "wifi.txt",
     "publicUrl": "/uploads/local_chat_session/wifi.txt",
-    "serverFilePath": "/home/user/studio/public/uploads/local_chat_session/wifi.txt"
+    "serverFilePath": "/home/user/studio/public/uploads/local_chat_session/wifi.txt",
+    "fileContext": "This file appears to contain Wi-Fi network credentials, including SSID and password. It should be handled with care due to its sensitive nature."
   },
   {
     "id": "316508d6-33d5-4dc8-86d9-6cfe5f0fdf7d",

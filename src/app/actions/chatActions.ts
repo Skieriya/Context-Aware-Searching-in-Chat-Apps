@@ -4,7 +4,7 @@
 import { USER_YOU } from '@/config/constants';
 import { appendMessageToLog, readChatLog, saveUploadedFile } from '@/lib/chat-storage';
 import type { LogEntry, Message } from '@/types/chat';
-// Removed: import { redactSensitiveInformation } from '@/ai/flows/redact-sensitive-information';
+import { summarizeFileContent } from '@/ai/flows/summarize-file-content-flow';
 import { revalidatePath } from 'next/cache';
 
 export interface SendMessageResult {
@@ -35,7 +35,6 @@ export async function sendMessageAction(formData: FormData): Promise<SendMessage
 
   try {
     if (textMessage) {
-      // Removed redaction call. Log original text directly.
       logEntry = {
         id: messageId,
         sender,
@@ -43,10 +42,25 @@ export async function sendMessageAction(formData: FormData): Promise<SendMessage
         timestamp,
         type: 'text',
         originalText: textMessage,
-        redactedText: textMessage, // Store original text as redaction is removed
+        redactedText: textMessage, 
       };
     } else if (file) {
       const { fileName, publicUrl, serverFilePath } = await saveUploadedFile(chatId, file);
+      
+      // Convert file to data URI for AI processing
+      const bytes = await file.arrayBuffer();
+      const buffer = Buffer.from(bytes);
+      const fileDataUri = `data:${file.type};base64,${buffer.toString('base64')}`;
+
+      let fileContext = "File content summary not available."; // Default context
+      try {
+        const summaryOutput = await summarizeFileContent({ fileDataUri, fileName: file.name });
+        fileContext = summaryOutput.summary;
+      } catch (aiError) {
+        console.warn(`AI summarization failed for ${fileName}:`, aiError);
+        // You could choose to log a specific error message in fileContext or proceed without it
+      }
+
       logEntry = {
         id: messageId,
         sender,
@@ -56,6 +70,7 @@ export async function sendMessageAction(formData: FormData): Promise<SendMessage
         fileName,
         publicUrl,
         serverFilePath,
+        fileContext, // Add the AI-generated context here
       };
     } else {
       // Should not happen based on earlier check, but as a safeguard
@@ -64,6 +79,7 @@ export async function sendMessageAction(formData: FormData): Promise<SendMessage
 
     await appendMessageToLog(chatId, logEntry);
     revalidatePath('/'); // Revalidate the page to reflect new messages when loading
+    revalidatePath('/view-log'); // Revalidate log view page as well
     return { success: true, newMessage: logEntry };
 
   } catch (error) {
@@ -80,13 +96,13 @@ export async function loadMessagesAction(chatId: string): Promise<Message[]> {
       id: entry.id,
       sender: entry.sender,
       receiver: entry.receiver,
-      content: entry.type === 'text' ? entry.redactedText! : entry.fileName!, // Will now display original text
+      content: entry.type === 'text' ? entry.redactedText! : entry.fileName!, 
       type: entry.type,
       filePath: entry.type === 'file' ? entry.publicUrl : undefined,
       timestamp: new Date(entry.timestamp),
-      isLocalSender: entry.sender === USER_YOU, // Assuming USER_YOU is the constant for the local user
-      isNew: false, // By default, loaded messages are not "new" for animation
-    })).sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime()); // Sort by timestamp
+      isLocalSender: entry.sender === USER_YOU, 
+      isNew: false, 
+    })).sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
   } catch (error) {
     console.error('Error loading messages:', error);
     return [];

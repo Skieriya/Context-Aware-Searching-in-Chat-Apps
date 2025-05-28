@@ -1,3 +1,4 @@
+
 // For UI state
 export interface Message {
   id: string;
@@ -26,4 +27,5 @@ export interface LogEntry {
   fileName?: string; 
   publicUrl?: string; // Publicly accessible URL, e.g., /uploads/chat_id/filename.txt
   serverFilePath?: string; // Path on server fs, e.g., public/uploads/...
+  fileContext?: string; // AI-generated summary for files
 }

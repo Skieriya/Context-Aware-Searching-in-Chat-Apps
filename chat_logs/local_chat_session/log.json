@@ -1,0 +1,57 @@
+[
+  {
+    "id": "85190426-c9dd-43b5-9d15-2200d4f5b51b",
+    "sender": "You",
+    "receiver": "Friend",
+    "timestamp": "2025-05-28T07:03:26.620Z",
+    "type": "text",
+    "originalText": "HI",
+    "redactedText": "HI"
+  },
+  {
+    "id": "cba939e6-3a16-457e-8f5c-180aaf2b4ece",
+    "sender": "Friend",
+    "receiver": "You",
+    "timestamp": "2025-05-28T07:03:29.578Z",
+    "type": "text",
+    "originalText": "Thanks for your message! I'll get back to you soon.",
+    "redactedText": "Thanks for your message! I'll get back to you soon."
+  },
+  {
+    "id": "77b82593-8edf-4b83-a9d5-c303021d36c7",
+    "sender": "You",
+    "receiver": "Friend",
+    "timestamp": "2025-05-28T07:03:43.374Z",
+    "type": "file",
+    "fileName": "wifi.txt",
+    "publicUrl": "/uploads/local_chat_session/wifi.txt",
+    "serverFilePath": "/home/user/studio/public/uploads/local_chat_session/wifi.txt"
+  },
+  {
+    "id": "316508d6-33d5-4dc8-86d9-6cfe5f0fdf7d",
+    "sender": "Friend",
+    "receiver": "You",
+    "timestamp": "2025-05-28T07:03:44.079Z",
+    "type": "text",
+    "originalText": "Thanks for your message! I'll get back to you soon.",
+    "redactedText": "Thanks for your message! I'll get back to you soon."
+  },
+  {
+    "id": "96cdc7e1-d976-40cf-a113-a3f512c47f8a",
+    "sender": "You",
+    "receiver": "Friend",
+    "timestamp": "2025-05-28T07:03:52.687Z",
+    "type": "text",
+    "originalText": "good",
+    "redactedText": "good"
+  },
+  {
+    "id": "62fa64cd-c845-40be-93ef-e5dc80da2f6e",
+    "sender": "Friend",
+    "receiver": "You",
+    "timestamp": "2025-05-28T07:03:55.043Z",
+    "type": "text",
+    "originalText": "Thanks for your message! I'll get back to you soon.",
+    "redactedText": "Thanks for your message! I'll get back to you soon."
+  }
+]

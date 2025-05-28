@@ -11,8 +11,8 @@ import { USER_YOU } from '@/config/constants';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Bot, User, Search, X } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'; // TooltipProvider removed as it's global
+import { Bot, Search, X } from 'lucide-react'; // User icon removed as it's not used here
 
 interface ChatPageProps {
   chatId: string;
@@ -45,7 +45,7 @@ export default function ChatPage({ chatId, recipientName }: ChatPageProps) {
     loadMessages();
   }, [loadMessages]); // Reload messages when chatId changes (via key prop on ChatPage)
 
-  const addMessageToState = (newMessageData: LogEntry, isOptimistic: boolean = false) => {
+  const addMessageToState = useCallback((newMessageData: LogEntry, isOptimistic: boolean = false) => {
     const uiMessage: Message = {
       id: newMessageData.id,
       sender: newMessageData.sender,
@@ -64,25 +64,25 @@ export default function ChatPage({ chatId, recipientName }: ChatPageProps) {
       const existingMsgIndex = prevMessages.findIndex(m => m.id === uiMessage.id);
       if (existingMsgIndex !== -1) {
         const updatedMessages = [...prevMessages];
-        updatedMessages[existingMsgIndex] = { ...uiMessage, isOptimistic: false, isNew: prevMessages[existingMsgIndex].isNew }; // Preserve isNew if it was already true
+        updatedMessages[existingMsgIndex] = { ...uiMessage, isOptimistic: false, isNew: prevMessages[existingMsgIndex].isNew };
         return updatedMessages;
       }
       return [...prevMessages, uiMessage];
     });
 
-    // Reset isNew after animation
     setTimeout(() => {
       setMessages(prev => prev.map(m => m.id === uiMessage.id ? { ...m, isNew: false } : m));
-    }, 600); // Duration of fadeIn animation
-  };
+    }, 600);
+  }, []);
+
 
   const simulateFriendReply = useCallback(async (originalMessageId: string) => {
     const replyId = crypto.randomUUID();
-    const replyText = `Thanks for your message! I'll get back to you soon. (Reply from ${recipientName})`;
+    const replyText = `Thanks for your message! I'll get back to you soon.`; // Simpler reply
 
     const optimisticLogEntry: LogEntry = {
       id: replyId,
-      sender: recipientName, // Reply comes from the current recipient
+      sender: recipientName,
       receiver: USER_YOU,
       originalText: replyText,
       type: 'text',
@@ -92,7 +92,7 @@ export default function ChatPage({ chatId, recipientName }: ChatPageProps) {
 
     const formData = new FormData();
     formData.append('chatId', chatId);
-    formData.append('sender', recipientName); // Sender is the current recipient
+    formData.append('sender', recipientName);
     formData.append('receiver', USER_YOU);
     formData.append('messageId', replyId);
     formData.append('textMessage', replyText);
@@ -107,7 +107,6 @@ export default function ChatPage({ chatId, recipientName }: ChatPageProps) {
         description: result.message || 'Could not log friend reply.',
         variant: 'destructive',
       });
-      // Remove optimistic message if server failed
       setMessages(prev => prev.filter(m => m.id !== replyId));
     }
   }, [chatId, recipientName, toast, addMessageToState]);
@@ -120,7 +119,7 @@ export default function ChatPage({ chatId, recipientName }: ChatPageProps) {
     const formData = new FormData();
     formData.append('chatId', chatId);
     formData.append('sender', USER_YOU);
-    formData.append('receiver', recipientName); // Send to the current recipient
+    formData.append('receiver', recipientName);
     formData.append('messageId', messageId);
 
     const optimisticLogEntryBase = {
@@ -139,18 +138,17 @@ export default function ChatPage({ chatId, recipientName }: ChatPageProps) {
         originalText: content,
         type: 'text',
       }, true);
-    } else { // File
+    } else { 
       formData.append('file', content);
-      // Create a blob URL for optimistic image preview
       if (content.type.startsWith('image/')) {
         optimisticFilePath = URL.createObjectURL(content);
       }
       addMessageToState({
         ...optimisticLogEntryBase,
         fileName: content.name,
-        publicUrl: optimisticFilePath, // Use blob URL for optimistic display
+        publicUrl: optimisticFilePath, 
         type: 'file',
-        fileContext: "Processing file...", // Optimistic context
+        fileContext: "Processing file...",
       }, true);
     }
 
@@ -159,15 +157,11 @@ export default function ChatPage({ chatId, recipientName }: ChatPageProps) {
 
     if (result.success && result.newMessage) {
       toast({ title: 'Message Sent!', description: typeof content === 'string' ? 'Your message has been sent and logged.' : 'Your file has been uploaded and logged.' });
-      // Update or confirm the optimistic message with server data
       addMessageToState(result.newMessage);
 
-      // Clean up blob URL if it was created and is different from server URL
       if (optimisticFilePath && result.newMessage.type === 'file' && result.newMessage.publicUrl !== optimisticFilePath) {
          URL.revokeObjectURL(optimisticFilePath);
       }
-
-      // Simulate a reply from the recipient
       await simulateFriendReply(messageId);
 
     } else {
@@ -176,7 +170,6 @@ export default function ChatPage({ chatId, recipientName }: ChatPageProps) {
         description: result.message || 'Could not send your message.',
         variant: 'destructive',
       });
-      // Remove optimistic message if server failed
       setMessages(prev => prev.filter(m => m.id !== messageId));
       if (optimisticFilePath) {
          URL.revokeObjectURL(optimisticFilePath);
@@ -211,29 +204,27 @@ export default function ChatPage({ chatId, recipientName }: ChatPageProps) {
             </div>
             <div>
               <CardTitle className="text-xl font-semibold text-foreground">{recipientName}</CardTitle>
-              <p className="text-xs text-muted-foreground">Chat ID: {chatId}</p>
+              {/* <p className="text-xs text-muted-foreground">Chat ID: {chatId}</p> */} {/* Chat ID can be hidden for cleaner UI */}
             </div>
           </div>
 
           {!isSearchOpen && (
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setIsSearchOpen(true)}
-                    className="rounded-full h-10 w-10"
-                    aria-label="Open Context Aware Search"
-                  >
-                    <Search size={20} />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Context Aware Search</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setIsSearchOpen(true)}
+                  className="rounded-full h-10 w-10"
+                  aria-label="Open Context Aware Search"
+                >
+                  <Search size={20} />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Context Aware Search</p>
+              </TooltipContent>
+            </Tooltip>
           )}
         </div>
 

@@ -22,14 +22,18 @@ export default function MessageList({ messages, searchTerm }: MessageListProps) 
   }, [messages]);
 
   return (
-    <ScrollArea className="h-[calc(100vh-200px)] md:h-[calc(100vh-220px)] w-full p-4 rounded-lg border bg-card flex-grow" ref={scrollAreaRef}>
+    <ScrollArea
+      className="h-[calc(100vh-200px)] md:h-[calc(100vh-220px)] w-full p-4 rounded-lg border flex-grow bg-[url('https://placehold.co/1200x800.png')] bg-cover bg-center"
+      ref={scrollAreaRef}
+      data-ai-hint="chat background"
+    >
       <div ref={viewportRef} className="h-full">
       {messages.length === 0 && (
-        <div className="flex items-center justify-center h-full text-muted-foreground">
+        <div className="flex items-center justify-center h-full">
           {searchTerm && searchTerm.trim() !== '' ? (
-            <p>No messages found for "{searchTerm}".</p>
+            <p className="text-muted-foreground bg-background/80 p-2 rounded-md">No messages found for "{searchTerm}".</p>
           ) : (
-            <p>No messages yet. Start the conversation!</p>
+            <p className="text-muted-foreground bg-background/80 p-2 rounded-md">No messages yet. Start the conversation!</p>
           )}
         </div>
       )}
@@ -40,4 +44,3 @@ export default function MessageList({ messages, searchTerm }: MessageListProps) 
     </ScrollArea>
   );
 }
-

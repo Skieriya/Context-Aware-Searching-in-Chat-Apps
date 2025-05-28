@@ -26,7 +26,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en"> {/* Ensure no default 'dark' or 'theme-yellow' class here; ThemeProvider handles it */}
+    <html lang="en">{/* Ensure no default 'dark' or 'theme-yellow' class here; ThemeProvider handles it */}
       <body className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}>
         <ThemeProvider>
           <SidebarProvider defaultOpen={true}>

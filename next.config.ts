@@ -16,7 +16,16 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
+      { // Added for local image previews if files are served from dev server.
+        protocol: 'http',
+        hostname: 'localhost',
+      }
     ],
+  },
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '15mb', // Increased for file uploads, adjust as needed
+    },
   },
 };
 

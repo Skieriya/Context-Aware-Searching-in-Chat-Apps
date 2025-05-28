@@ -138,6 +138,7 @@ export default function ChatPage() {
         fileName: content.name,
         publicUrl: optimisticFilePath, 
         type: 'file',
+        fileContext: "Processing file...", // Optimistic context
       }, true);
     }
     
@@ -185,7 +186,7 @@ export default function ChatPage() {
   }, [messages, searchTerm]);
 
   return (
-    <Card className="w-full max-w-2xl h-[calc(100vh-4rem)] md:h-[calc(100vh-6rem)] flex flex-col shadow-2xl rounded-xl overflow-hidden">
+    <Card className="w-full h-full flex flex-col overflow-hidden border-0 md:border-l">
       <CardHeader className="p-4 border-b bg-card space-y-3">
         <div className="flex items-center space-x-3">
           <div className="p-2 bg-primary/20 rounded-full">
@@ -218,4 +219,3 @@ export default function ChatPage() {
     </Card>
   );
 }
-

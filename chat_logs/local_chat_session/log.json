@@ -68,5 +68,24 @@
     "timestamp": "2025-05-28T07:41:03.303Z",
     "type": "text",
     "originalText": "Thanks for your message! I'll get back to you soon."
+  },
+  {
+    "id": "2d107e46-f8b5-4a61-83d0-ea1719651365",
+    "sender": "You",
+    "receiver": "Friend",
+    "timestamp": "2025-05-28T07:45:33.345Z",
+    "type": "file",
+    "fileName": "2405.16555v1.pdf",
+    "publicUrl": "/uploads/local_chat_session/2405.16555v1.pdf",
+    "serverFilePath": "/home/user/studio/public/uploads/local_chat_session/2405.16555v1.pdf",
+    "fileContext": "This paper introduces vHeat, a novel vision backbone model inspired by heat conduction principles for efficient and robust visual representation learning. The model conceptualizes image patches as heat sources, modeling their correlations as thermal energy diffusion, demonstrating superior performance and efficiency compared to Vision Transformers."
+  },
+  {
+    "id": "a3ebe899-7a42-4d64-bf34-0caf104a440f",
+    "sender": "Friend",
+    "receiver": "You",
+    "timestamp": "2025-05-28T07:45:40.457Z",
+    "type": "text",
+    "originalText": "Thanks for your message! I'll get back to you soon."
   }
 ]

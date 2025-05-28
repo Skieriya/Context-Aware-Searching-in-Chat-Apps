@@ -30,10 +30,9 @@ export default function ChatPage({ chatId, recipientName }: ChatPageProps) {
 
   useEffect(() => {
     if (isSearchOpen && inputRef.current) {
-      // Timeout to allow the element to become visible and focusable after state change and transition
       setTimeout(() => {
         inputRef.current?.focus();
-      }, 100); // A small delay, adjust if needed (50ms might be too short for some transitions)
+      }, 100); 
     }
   }, [isSearchOpen]);
 
@@ -217,15 +216,13 @@ export default function ChatPage({ chatId, recipientName }: ChatPageProps) {
             </div>
           </div>
 
-          {/* Search Area - This will be flex-grow to take up remaining space */}
-          <div className="relative flex items-center flex-grow justify-end min-w-[50px]"> {/* min-w to prevent collapse */}
-            {/* "Context Aware Search" Button */}
+          <div className="relative flex items-center flex-grow justify-end min-w-[50px]">
             <Button
               variant="outline"
               size="sm"
               onClick={() => setIsSearchOpen(true)}
               className={cn(
-                "rounded-full flex items-center transition-all duration-300 ease-in-out transform",
+                "rounded-full flex items-center transition-all duration-300 ease-in-out transform h-8", // Made button h-8
                 isSearchOpen 
                   ? "opacity-0 scale-95 w-0 p-0 border-0 pointer-events-none" 
                   : "opacity-100 scale-100"
@@ -237,7 +234,6 @@ export default function ChatPage({ chatId, recipientName }: ChatPageProps) {
               Context Aware Search
             </Button>
 
-            {/* Search Input Full Width Container */}
             <div className={cn(
                 "relative flex items-center w-full transition-all duration-300 ease-in-out transform",
                 isSearchOpen 
@@ -252,7 +248,7 @@ export default function ChatPage({ chatId, recipientName }: ChatPageProps) {
                 placeholder="Search messages and file context..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 pr-10 w-full text-sm rounded-full h-9 focus-visible:ring-primary focus-visible:ring-opacity-50"
+                className="pl-10 pr-10 w-full text-sm rounded-full h-8 focus-visible:ring-primary focus-visible:ring-opacity-50" // Made input h-8
                 disabled={!isSearchOpen}
               />
               <Button
@@ -262,11 +258,11 @@ export default function ChatPage({ chatId, recipientName }: ChatPageProps) {
                     setIsSearchOpen(false);
                     setSearchTerm('');
                 }}
-                className="absolute right-1 top-1/2 -translate-y-1/2 rounded-full h-8 w-8"
+                className="absolute right-1 top-1/2 -translate-y-1/2 rounded-full h-7 w-7" // Made X button h-7 w-7
                 aria-label="Close search"
                 disabled={!isSearchOpen}
               >
-                <X size={18} />
+                <X size={16} /> {/* Adjusted X icon size */}
               </Button>
             </div>
           </div>
@@ -283,4 +279,3 @@ export default function ChatPage({ chatId, recipientName }: ChatPageProps) {
     </Card>
   );
 }
-

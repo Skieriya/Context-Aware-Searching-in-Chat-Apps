@@ -1,4 +1,3 @@
-
 [
   {
     "id": "85190426-c9dd-43b5-9d15-2200d4f5b51b",
@@ -48,6 +47,25 @@
     "sender": "Friend",
     "receiver": "You",
     "timestamp": "2025-05-28T07:03:55.043Z",
+    "type": "text",
+    "originalText": "Thanks for your message! I'll get back to you soon."
+  },
+  {
+    "id": "626a513d-9fbf-4e84-a5e0-a6975dd6e449",
+    "sender": "You",
+    "receiver": "Friend",
+    "timestamp": "2025-05-28T07:40:58.540Z",
+    "type": "file",
+    "fileName": "Screenshot_2025-05-23_193256.png",
+    "publicUrl": "/uploads/local_chat_session/Screenshot_2025-05-23_193256.png",
+    "serverFilePath": "/home/user/studio/public/uploads/local_chat_session/Screenshot_2025-05-23_193256.png",
+    "fileContext": "The image lists ways to compensate for a low GPA, including projects, writing, outreach, and strong letters of recommendation. The image is titled Screenshot 2025-05-23 193256.png"
+  },
+  {
+    "id": "d4773a23-37c6-4186-83af-ccc828763ec9",
+    "sender": "Friend",
+    "receiver": "You",
+    "timestamp": "2025-05-28T07:41:03.303Z",
     "type": "text",
     "originalText": "Thanks for your message! I'll get back to you soon."
   }

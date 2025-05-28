@@ -98,6 +98,7 @@ export async function loadMessagesAction(chatId: string): Promise<Message[]> {
       content: entry.type === 'text' ? entry.originalText! : entry.fileName!, 
       type: entry.type,
       filePath: entry.type === 'file' ? entry.publicUrl : undefined,
+      fileContext: entry.type === 'file' ? entry.fileContext : undefined,
       timestamp: new Date(entry.timestamp),
       isLocalSender: entry.sender === USER_YOU, 
       isNew: false, 

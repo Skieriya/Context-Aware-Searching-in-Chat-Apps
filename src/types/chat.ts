@@ -7,6 +7,7 @@ export interface Message {
   content: string; // Original text or file name
   type: 'text' | 'file';
   filePath?: string; // public URL for file type, e.g., /uploads/chat_id/filename.txt
+  fileContext?: string; // AI-generated summary for files, used for search
   timestamp: Date;
   isLocalSender: boolean; // True if sender is USER_YOU
   isOptimistic?: boolean; // True if message is not yet confirmed by server

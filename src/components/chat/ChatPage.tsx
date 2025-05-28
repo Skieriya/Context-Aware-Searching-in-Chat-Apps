@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import type { Message, LogEntry } from '@/types/chat';
 import MessageList from './MessageList';
 import MessageInput from './MessageInput';
@@ -9,12 +9,14 @@ import { loadMessagesAction, sendMessageAction, SendMessageResult } from '@/app/
 import { useToast } from '@/hooks/use-toast';
 import { USER_YOU, USER_FRIEND, CHAT_ID } from '@/config/constants';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Bot, User } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Bot, User, Search } from 'lucide-react';
 
 export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSending, setIsSending] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
   const { toast } = useToast();
 
   const loadMessages = useCallback(async () => {
@@ -42,6 +44,7 @@ export default function ChatPage() {
       content: newMessageData.type === 'text' ? newMessageData.originalText! : newMessageData.fileName!,
       type: newMessageData.type,
       filePath: newMessageData.type === 'file' ? newMessageData.publicUrl : undefined,
+      fileContext: newMessageData.type === 'file' ? newMessageData.fileContext : undefined,
       timestamp: new Date(newMessageData.timestamp),
       isLocalSender: newMessageData.sender === USER_YOU,
       isOptimistic,
@@ -49,20 +52,18 @@ export default function ChatPage() {
     };
 
     setMessages(prevMessages => {
-      // If message already exists (e.g. optimistic update followed by server confirmation), replace it.
       const existingMsgIndex = prevMessages.findIndex(m => m.id === uiMessage.id);
       if (existingMsgIndex !== -1) {
         const updatedMessages = [...prevMessages];
-        updatedMessages[existingMsgIndex] = { ...uiMessage, isOptimistic: false, isNew: prevMessages[existingMsgIndex].isNew }; // Preserve animation if it was already new
+        updatedMessages[existingMsgIndex] = { ...uiMessage, isOptimistic: false, isNew: prevMessages[existingMsgIndex].isNew };
         return updatedMessages;
       }
       return [...prevMessages, uiMessage];
     });
 
-    // Remove the 'isNew' flag after animation to prevent re-animating on re-renders
     setTimeout(() => {
       setMessages(prev => prev.map(m => m.id === uiMessage.id ? { ...m, isNew: false } : m));
-    }, 600); // Slightly longer than animation duration
+    }, 600);
   };
   
   const simulateFriendReply = useCallback(async (originalMessageId: string) => {
@@ -89,14 +90,13 @@ export default function ChatPage() {
     const result: SendMessageResult = await sendMessageAction(formData);
 
     if (result.success && result.newMessage) {
-      addMessageToState(result.newMessage); // Update with server-confirmed message
+      addMessageToState(result.newMessage);
     } else {
       toast({
         title: 'Friend Reply Simulation Error',
         description: result.message || 'Could not log friend reply.',
         variant: 'destructive',
       });
-      // Remove optimistic reply if server failed
       setMessages(prev => prev.filter(m => m.id !== replyId));
     }
   }, [toast, addMessageToState]);
@@ -111,10 +111,6 @@ export default function ChatPage() {
     formData.append('sender', USER_YOU);
     formData.append('receiver', USER_FRIEND);
     formData.append('messageId', messageId);
-
-    let optimisticContent: string;
-    let optimisticType: 'text' | 'file' = 'text';
-    let optimisticFilePath: string | undefined = undefined;
     
     const optimisticLogEntryBase = {
       id: messageId,
@@ -123,25 +119,24 @@ export default function ChatPage() {
       timestamp: new Date().toISOString(),
     };
 
+    let optimisticFilePath: string | undefined = undefined;
+
     if (typeof content === 'string') {
       formData.append('textMessage', content);
-      optimisticContent = content;
       addMessageToState({
         ...optimisticLogEntryBase,
-        originalText: optimisticContent,
+        originalText: content,
         type: 'text',
       }, true);
     } else {
       formData.append('file', content);
-      optimisticContent = content.name;
-      optimisticType = 'file';
       if (content.type.startsWith('image/')) {
         optimisticFilePath = URL.createObjectURL(content);
       }
       addMessageToState({
         ...optimisticLogEntryBase,
-        fileName: optimisticContent,
-        publicUrl: optimisticFilePath, // Use blob URL for optimistic image display
+        fileName: content.name,
+        publicUrl: optimisticFilePath, 
         type: 'file',
       }, true);
     }
@@ -151,10 +146,10 @@ export default function ChatPage() {
 
     if (result.success && result.newMessage) {
       toast({ title: 'Message Sent!', description: typeof content === 'string' ? 'Your message has been sent and logged.' : 'Your file has been uploaded and logged.' });
-      addMessageToState(result.newMessage); // Update with server-confirmed message
+      addMessageToState(result.newMessage); 
 
-      if (optimisticFilePath && optimisticType === 'file' && result.newMessage.publicUrl !== optimisticFilePath) {
-         URL.revokeObjectURL(optimisticFilePath); // Revoke only if server returned a different URL (i.e., not the blob)
+      if (optimisticFilePath && result.newMessage.type === 'file' && result.newMessage.publicUrl !== optimisticFilePath) {
+         URL.revokeObjectURL(optimisticFilePath); 
       }
       
       await simulateFriendReply(messageId);
@@ -166,15 +161,32 @@ export default function ChatPage() {
         variant: 'destructive',
       });
       setMessages(prev => prev.filter(m => m.id !== messageId));
-      if (optimisticFilePath && optimisticType === 'file') {
+      if (optimisticFilePath) {
          URL.revokeObjectURL(optimisticFilePath);
       }
     }
   };
 
+  const displayedMessages = useMemo(() => {
+    if (!searchTerm.trim()) {
+      return messages;
+    }
+    return messages.filter(msg => {
+      const term = searchTerm.toLowerCase();
+      if (msg.type === 'text') {
+        return msg.content.toLowerCase().includes(term);
+      } else if (msg.type === 'file') {
+        const fileNameMatch = msg.content.toLowerCase().includes(term);
+        const contextMatch = msg.fileContext?.toLowerCase().includes(term) || false;
+        return fileNameMatch || contextMatch;
+      }
+      return false;
+    });
+  }, [messages, searchTerm]);
+
   return (
     <Card className="w-full max-w-2xl h-[calc(100vh-4rem)] md:h-[calc(100vh-6rem)] flex flex-col shadow-2xl rounded-xl overflow-hidden">
-      <CardHeader className="p-4 border-b bg-card">
+      <CardHeader className="p-4 border-b bg-card space-y-3">
         <div className="flex items-center space-x-3">
           <div className="p-2 bg-primary/20 rounded-full">
             <Bot size={24} className="text-primary" />
@@ -184,12 +196,22 @@ export default function ChatPage() {
             <p className="text-xs text-muted-foreground">Chat logs are saved locally. File uploads include AI summaries.</p>
           </div>
         </div>
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+          <Input
+            type="search"
+            placeholder="Search messages and file context..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10 w-full text-sm rounded-lg focus-visible:ring-primary focus-visible:ring-opacity-50"
+          />
+        </div>
       </CardHeader>
       <CardContent className="flex-grow p-0 overflow-hidden flex flex-col">
         {isLoading ? (
           <div className="flex items-center justify-center h-full text-muted-foreground">Loading messages...</div>
         ) : (
-          <MessageList messages={messages} />
+          <MessageList messages={displayedMessages} searchTerm={searchTerm} />
         )}
         <MessageInput onSendMessage={handleSendMessage} isSending={isSending} />
       </CardContent>
